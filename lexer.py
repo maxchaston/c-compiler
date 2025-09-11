@@ -27,7 +27,8 @@ class Lexer:
             tokens = []
             while len(data) != 0:
                 if data[0].encode() in [b' ', b'\t', b'\n', b'\r',b'\x0b', b'\f']:
-                    data=data.lstrip() # remove leading whitespace
+                    # data=data.lstrip() # remove leading whitespace
+                    data=data[1:]
                 else:
                     best_match = Lexer._largest_regex(data, Token.regex_dict)
                     if best_match is None: 
