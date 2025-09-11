@@ -1,0 +1,45 @@
+#!/usr/bin/env python 
+
+import subprocess
+from lexer import Lexer
+import argparse
+
+class CompilerDriver:
+    filename=''
+    @staticmethod
+    def preprocess(filename: str):
+        print("Preprocessing...",end='\r')
+        command_to_run = f'gcc -E -P {filename} -o {CompilerDriver.filename_root + '.i'}' # -E to only run preprocessor, -P do not emit line markers
+        completed_process = subprocess.run(command_to_run.split(' '))
+        if completed_process.returncode != 0:
+            print(f"Error occured while running preprocessor: {completed_process.stderr}")
+        else:
+            print(f"Preprocess completed successfully")
+
+    def lex(filename: str):
+        print("Lexing...",end='\r')
+        Lexer.lex(filename)
+        print("Lexing completed successfully",end='\r')
+
+def main():
+    parser = argparse.ArgumentParser(prog='c compiler driver')
+    parser.add_argument('filename')
+    parser.add_argument('--lex', action='store_true') # run lexer, but stop before parsing
+    parser.add_argument('--parse', action='store_true') # run lexer and parser, but stop before assembly gen
+    parser.add_argument('--codegen', action='store_true') # run lexer, parser and assembly gen, but stop before code emission
+    parser.add_argument('-S', action='store_true') # emit an assembly file
+
+    args = parser.parse_args()
+
+    CompilerDriver.filename = args.filename
+    CompilerDriver.filename_root = CompilerDriver.filename.split('.')[0] # assuming in format of root.c
+
+    # preprocess
+    CompilerDriver.preprocess(CompilerDriver.filename)
+
+    # lex
+    if args.lex or args.parse or args.codegen:
+        CompilerDriver.lex(CompilerDriver.filename_root+'.i')
+
+if __name__ == "__main__":
+    main()
