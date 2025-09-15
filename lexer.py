@@ -21,7 +21,7 @@ class Lexer:
         
 
     @staticmethod
-    def lex(filename: str):
+    def lex(filename: str) -> list[str, re.Match]:
         with open(filename, 'r') as f:
             data = f.read()
             tokens = []
@@ -41,8 +41,7 @@ class Lexer:
                             best_match = keyword_match
                     tokens.append(best_match)
                     data = data[len(best_match[1][0]):]
-
-            print(*tokens, sep='\n')
+            return tokens
 
 
 @dataclasses.dataclass
