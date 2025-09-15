@@ -2,7 +2,9 @@
 
 import subprocess
 from lexer import Lexer
+from parser import Parser
 import argparse
+import re
 
 class CompilerDriver:
     filename=''
@@ -16,10 +18,16 @@ class CompilerDriver:
         else:
             print(f"Preprocess completed successfully")
 
-    def lex(filename: str):
+    def lex(filename: str) -> list[tuple[str, re.Match]]:
         print("Lexing...",end='\r')
-        Lexer.lex(filename)
-        print("Lexing completed successfully",end='\r')
+        lex_ret = Lexer.lex(filename)
+        print("Lexing completed successfully")
+        return lex_ret
+
+    def parse(tokens: list[tuple[str, re.Match]]):
+        print("Parsing...",end='\r')
+        Parser.parse_program(tokens)
+        print("Parsing completed successfully")
 
 def main():
     parser = argparse.ArgumentParser(prog='c compiler driver')
@@ -39,7 +47,11 @@ def main():
 
     # lex
     if args.lex or args.parse or args.codegen:
-        CompilerDriver.lex(CompilerDriver.filename_root+'.i')
+        lex_ret = CompilerDriver.lex(CompilerDriver.filename_root+'.i')
+
+    # parse
+    if args.parse or args.codegen:
+        CompilerDriver.parse(lex_ret)
 
 if __name__ == "__main__":
     main()

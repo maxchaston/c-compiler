@@ -21,13 +21,14 @@ class Lexer:
         
 
     @staticmethod
-    def lex(filename: str):
+    def lex(filename: str) -> list[str, re.Match]:
         with open(filename, 'r') as f:
             data = f.read()
             tokens = []
             while len(data) != 0:
                 if data[0].encode() in [b' ', b'\t', b'\n', b'\r',b'\x0b', b'\f']:
-                    data=data.lstrip() # remove leading whitespace
+                    # data=data.lstrip() # remove leading whitespace
+                    data=data[1:]
                 else:
                     best_match = Lexer._largest_regex(data, Token.regex_dict)
                     if best_match is None: 
@@ -40,8 +41,7 @@ class Lexer:
                             best_match = keyword_match
                     tokens.append(best_match)
                     data = data[len(best_match[1][0]):]
-
-            print(*tokens, sep='\n')
+            return tokens
 
 
 @dataclasses.dataclass
