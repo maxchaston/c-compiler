@@ -26,8 +26,9 @@ class CompilerDriver:
 
     def parse(tokens: list[tuple[str, re.Match]]):
         print("Parsing...",end='\r')
-        Parser.parse_program(tokens)
+        parse_ret = Parser.parse_program(tokens)
         print("Parsing completed successfully")
+        return parse_ret
 
 def main():
     parser = argparse.ArgumentParser(prog='c compiler driver')
@@ -51,7 +52,8 @@ def main():
 
     # parse
     if args.parse or args.codegen:
-        CompilerDriver.parse(lex_ret)
+        parse_ret = CompilerDriver.parse(lex_ret)
+        Parser.pretty_print(parse_ret)
 
 if __name__ == "__main__":
     main()

@@ -7,6 +7,8 @@ from compiler_exceptions import SyntaxError
 @dataclass
 class Constant:
     val: int
+    def __str__(self):
+        return f"Constant({str(self.val)})"
 
 # will be a union later
 Expression = Constant
@@ -14,6 +16,10 @@ Expression = Constant
 @dataclass
 class Return:
     exp: Expression
+    def __str__(self):
+        return f"""Return (
+        {str(self.exp)}
+        )"""
 
 # will be a union later
 Statement = Return
@@ -24,10 +30,19 @@ Identifier = str
 class Function:
     name: Identifier
     body: Statement
+    def __str__(self):
+        return f"""Function (
+  name="{str(self.name)}"
+  body={str(self.body)}
+)"""
 
 @dataclass
 class Program:
     function_definition: Function
+    def __str__(self):
+        return f"""Program (
+  {str(self.function_definition)}
+)"""
 
 # Main classes
 class Parser:
@@ -85,3 +100,36 @@ class Parser:
             print(f"Incorrect syntax: unexpected tokens after function")
             raise SyntaxError
         return prog_ret
+
+    @staticmethod
+    def _pretty_print_indent(node, indentation: int):
+        leading_space = '  ' * indentation
+        def pprint(x):
+            print(f"{leading_space}{x}")
+        match node:
+            case Constant():
+                pprint(f"Constant({str(node.val)})")
+                return
+            case Return():
+                pprint(f"Return (")
+                Parser._pretty_print_indent(node.exp, indentation+1)
+                pprint(f")")
+                return 
+            case Function():
+                pprint(f"Function (")
+                pprint(f"{leading_space}name='{node.name}'")
+                pprint(f"{leading_space}body=(")
+                Parser._pretty_print_indent(node.body, indentation+2)
+                pprint(f"{leading_space})")
+                pprint(f")")
+                return
+            case Program():
+                pprint(f"Program (")
+                Parser._pretty_print_indent(node.function_definition, indentation+1)
+                pprint(f")")
+                return
+                  
+                
+    @staticmethod
+    def pretty_print(node):
+        Parser._pretty_print_indent(node, 0)
