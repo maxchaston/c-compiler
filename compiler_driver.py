@@ -1,6 +1,7 @@
 #!/usr/bin/env python 
 
 import subprocess
+from assembly_gen import Assembly_Generator 
 from lexer import Lexer
 from parser import Parser
 import argparse
@@ -8,6 +9,7 @@ import re
 
 class CompilerDriver:
     filename=''
+    filename_root=''
     @staticmethod
     def preprocess(filename: str):
         print("Preprocessing...",end='\r')
@@ -18,17 +20,27 @@ class CompilerDriver:
         else:
             print(f"Preprocess completed successfully")
 
-    def lex(filename: str) -> list[tuple[str, re.Match]]:
+    @staticmethod
+    def lex(filename: str) -> list[str]:
         print("Lexing...",end='\r')
         lex_ret = Lexer.lex(filename)
         print("Lexing completed successfully")
         return lex_ret
 
-    def parse(tokens: list[tuple[str, re.Match]]):
+    @staticmethod
+    def parse(tokens: list[str]):
         print("Parsing...",end='\r')
         parse_ret = Parser.parse_program(tokens)
         print("Parsing completed successfully")
         return parse_ret
+
+    @staticmethod
+    def assembly_gen(program):
+        print("Generating assembly...", end='\r')
+        assembly_gen_ret = Assembly_Generator.parse_program(program)
+        print("Assembly generation completed successfully")
+        print(assembly_gen_ret)
+        return assembly_gen_ret
 
 def main():
     parser = argparse.ArgumentParser(prog='c compiler driver')
@@ -50,10 +62,13 @@ def main():
     if args.lex or args.parse or args.codegen:
         lex_ret = CompilerDriver.lex(CompilerDriver.filename_root+'.i')
 
-    # parse
-    if args.parse or args.codegen:
-        parse_ret = CompilerDriver.parse(lex_ret)
-        Parser.pretty_print(parse_ret)
+        # parse
+        if args.parse or args.codegen:
+            parse_ret = CompilerDriver.parse(lex_ret)
+            Parser.pretty_print(parse_ret)
+
+            if args.codegen:
+                assembly_gen_ret = CompilerDriver.assembly_gen(parse_ret)
 
 if __name__ == "__main__":
     main()
