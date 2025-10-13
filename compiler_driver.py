@@ -1,7 +1,8 @@
 #!/usr/bin/env python 
 
 import subprocess
-from assembly_gen import Assembly_Generator 
+from assembly_gen import Assembly_Generator
+from code_gen import Code_Generator
 from lexer import Lexer
 from parser import Parser
 import argparse
@@ -35,12 +36,45 @@ class CompilerDriver:
         return parse_ret
 
     @staticmethod
-    def assembly_gen(program):
+    def assembly_gen(parse_program):
         print("Generating assembly...", end='\r')
-        assembly_gen_ret = Assembly_Generator.parse_program(program)
-        print("Assembly generation completed successfully")
-        print(assembly_gen_ret)
+        assembly_gen_ret = Assembly_Generator.parse_program(parse_program)
+        print("Assembly generation completed successfully\n")
+        print(assembly_gen_ret, end='\n\n')
         return assembly_gen_ret
+
+    @staticmethod
+    def code_gen(ass_program):
+        print("Generating code...", end='\r')
+        code_gen_ret = Code_Generator.gen_program(ass_program)
+        print("Code generation completed successfully\n")
+        print(*code_gen_ret, sep='\n', end='\n\n')
+        return code_gen_ret
+
+    @staticmethod
+    def write_assembly_file(code_arr):
+        print(f'Writing assembly file to {CompilerDriver.filename_root}.s')
+        with open(f'{CompilerDriver.filename_root}.s', 'w') as f:
+            code = '\n'.join(code_arr)
+            f.write(code)
+
+    @staticmethod
+    def run_assembler():
+        command_to_run = f"gcc -c {CompilerDriver.filename_root + '.s'} {CompilerDriver.filename_root}.o"
+        completed_process = subprocess.run(command_to_run.split(' '))
+        if completed_process.returncode != 0:
+            print(f"Error occured while running assembler: {completed_process.stderr}")
+        else:
+            print(f"Assembler completed successfully")
+
+    @staticmethod
+    def run_linker():
+        command_to_run = f"gcc {CompilerDriver.filename_root}.o -o {CompilerDriver.filename_root}"
+        completed_process = subprocess.run(command_to_run.split(' '))
+        if completed_process.returncode != 0:
+            print(f"Error occured while running linker: {completed_process.stderr}")
+        else:
+            print(f"Linker completed successfully")
 
 def main():
     parser = argparse.ArgumentParser(prog='c compiler driver')
@@ -59,16 +93,22 @@ def main():
     CompilerDriver.preprocess(CompilerDriver.filename)
 
     # lex
-    if args.lex or args.parse or args.codegen:
-        lex_ret = CompilerDriver.lex(CompilerDriver.filename_root+'.i')
+    lex_ret = CompilerDriver.lex(CompilerDriver.filename_root+'.i')
+    if args.lex:
+        return
 
-        # parse
-        if args.parse or args.codegen:
-            parse_ret = CompilerDriver.parse(lex_ret)
-            Parser.pretty_print(parse_ret)
+    # parse
+    parse_ret = CompilerDriver.parse(lex_ret)
+    Parser.pretty_print(parse_ret)
+    if args.parse:
+        return
 
-            if args.codegen:
-                assembly_gen_ret = CompilerDriver.assembly_gen(parse_ret)
+    # codegen:
+    assembly_gen_ret = CompilerDriver.assembly_gen(parse_ret)
+    code_gen_ret = CompilerDriver.code_gen(assembly_gen_ret)
+    CompilerDriver.write_assembly_file(code_gen_ret)
+    CompilerDriver.run_assembler()
+    CompilerDriver.run_linker()
 
 if __name__ == "__main__":
     main()
