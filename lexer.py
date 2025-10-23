@@ -54,6 +54,9 @@ class Token:
         'OPEN_BRACE': r'\{',
         'CLOSE_BRACE': r'\}',
         'SEMICOLON': r';',
+        'TILDE': r'~',
+        'HYPHEN': r'-',
+        'DECREMENT': r'--',
     }
     keyword_regex_dict={
         'INT_KEYWORD': r'int\b',
