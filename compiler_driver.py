@@ -14,7 +14,7 @@ class CompilerDriver:
     @staticmethod
     def preprocess(filename: str):
         print("Preprocessing...",end='\r')
-        command_to_run = f'gcc -E -P {filename} -o {CompilerDriver.filename_root + '.i'}' # -E to only run preprocessor, -P do not emit line markers
+        command_to_run = f'gcc -E -P {filename} -o {CompilerDriver.filename_root + ".i"}' # -E to only run preprocessor, -P do not emit line markers
         completed_process = subprocess.run(command_to_run.split(' '))
         if completed_process.returncode != 0:
             print(f"Error occured while running preprocessor: {completed_process.stderr}")
@@ -56,11 +56,12 @@ class CompilerDriver:
         print(f'Writing assembly file to {CompilerDriver.filename_root}.s')
         with open(f'{CompilerDriver.filename_root}.s', 'w') as f:
             code = '\n'.join(code_arr)
+            code+='\n'
             f.write(code)
 
     @staticmethod
     def run_assembler():
-        command_to_run = f"gcc -c {CompilerDriver.filename_root + '.s'} {CompilerDriver.filename_root}.o"
+        command_to_run = f'gcc -c {CompilerDriver.filename_root + ".s"} -o {CompilerDriver.filename_root + ".o"}'
         completed_process = subprocess.run(command_to_run.split(' '))
         if completed_process.returncode != 0:
             print(f"Error occured while running assembler: {completed_process.stderr}")
@@ -87,7 +88,9 @@ def main():
     args = parser.parse_args()
 
     CompilerDriver.filename = args.filename
+    print(f'Got filename: {CompilerDriver.filename}')
     CompilerDriver.filename_root = CompilerDriver.filename.split('.')[0] # assuming in format of root.c
+    print(f'Got filename root: {CompilerDriver.filename_root}')
 
     # preprocess
     CompilerDriver.preprocess(CompilerDriver.filename)
