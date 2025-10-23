@@ -25,7 +25,6 @@ class Constant:
     def __str__(self):
         return f"Constant({str(self.val)})"
 
-# will be a union later
 Expression = Constant | Unary
 
 @dataclass

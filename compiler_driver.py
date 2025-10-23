@@ -2,6 +2,7 @@
 
 import subprocess
 from assembly_gen import Assembly_Generator
+from tacky_gen import Tacky_Generator
 from code_gen import Code_Generator
 from lexer import Lexer
 from parser import Parser
@@ -34,6 +35,14 @@ class CompilerDriver:
         parse_ret = Parser.parse_program(tokens)
         print("Parsing completed successfully")
         return parse_ret
+
+    @staticmethod
+    def tacky_gen(parse_program):
+        print("Generating TACKY...", end='\r')
+        tacky_gen_ret = Tacky_Generator.parse_program(parse_program)
+        print("TACKY generation completed successfully\n")
+        print(tacky_gen_ret, end='\n\n')
+        return tacky_gen_ret
 
     @staticmethod
     def assembly_gen(parse_program):
