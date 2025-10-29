@@ -77,7 +77,7 @@ class Parser:
                 return Complement
             case 'HYPHEN':
                 del tokens[0]
-                return Negation
+                return Negate
             case _:
                 print(f"Incorrect syntax: expected valid unary operator but found {tokens[0][0]}")
                 raise SyntaxError

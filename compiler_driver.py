@@ -90,7 +90,8 @@ def main():
     parser = argparse.ArgumentParser(prog='c compiler driver')
     parser.add_argument('filename')
     parser.add_argument('--lex', action='store_true') # run lexer, but stop before parsing
-    parser.add_argument('--parse', action='store_true') # run lexer and parser, but stop before assembly gen
+    parser.add_argument('--parse', action='store_true') # run lexer and parser, but stop before tacky gen
+    parser.add_argument('--tacky', action='store_true') # run tacky gen, but stop before assembly gen
     parser.add_argument('--codegen', action='store_true') # run lexer, parser and assembly gen, but stop before code emission
     parser.add_argument('-S', action='store_true') # emit an assembly file
 
@@ -113,6 +114,11 @@ def main():
     parse_ret = CompilerDriver.parse(lex_ret)
     Parser.pretty_print(parse_ret)
     if args.parse:
+        return
+
+    # tacky gen
+    tecky_gen_ret = CompilerDriver.tacky_gen(parse_ret)
+    if args.tacky:
         return
 
     # codegen:

@@ -6,3 +6,6 @@
 
 2parse:
 	./nora-tests/test_compiler compiler_driver.py --chapter 2 --stage lex
+
+2tacky:
+	./nora-tests/test_compiler compiler_driver.py --chapter 2 --stage tacky

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import parser
 
-@datatclass
+@dataclass
 class Var:
     name: 'Identifier'
 
-@datatclass
+@dataclass
 class Constant:
     val: int
 
@@ -46,20 +46,42 @@ class Program:
 
 
 class Tacky_Generator:
-    # TODO not all there, appending the dst was thrown on and almost certainly isn't what's going to be done but the idea is right
-    # Just moving the code over
-    @staticmethod
-    def parse_expression(expression: parser.Expression) -> list[Instruction]:
+    tmp_var_func = None
+    tmp_var_count = 0
 
+    @staticmethod
+    def get_tmp_var_name():
+        return str(tmp_var_func) + '.' + str(tmp_var_count)
+
+    @staticmethod
+    def convert_parser_unop(unary_op):
+        match unary_op:
+            case parser.Complement:
+                return Complement()
+            case parser.Negate:
+                return Negate()
+
+    @staticmethod
+    def parse_expression(expression: parser.Expression, instructions):
+        match expression:
+            case parser.Constant:
+                return Constant(expression.val)
+            case parser.Unary:
+                src = Tacky_Generator.parse_expression(expression.exp)
+                dst_name = Tacky_Generator.get_tmp_var_name()
+                tmp_var_count+=1
+                dst = Var(dst_name)
+                instructions.append(Unary(convert_parser_unop(expression.op), src, dst))
+                
     @staticmethod
     def parse_function(function: parser.Function):
         func_name = function.name
+        tmp_var_func = func_name 
         func_instructions = []
         match type(function.body):
             case parser.Return:
-               exp_ret = Tacky_generator.parse_expression(function.body.exp)
-               func_instructions.append(Return(exp_ret[-1].dst))
-
+                exp_ret = Tacky_Generator.parse_expression(function.body.exp, func_instructions)
+                func_instructions.append(Return(Constant(exp_ret)))
 
         func_ret = Function(func_name, func_instructions)
         return func_ret
